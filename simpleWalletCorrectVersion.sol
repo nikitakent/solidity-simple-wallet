@@ -15,18 +15,34 @@ modifier ownerOrAllowed(uint _amount){
     _;
 }
 
-// BASIC DEPOSIT AND WITHDRAW FUNCTIONALITY: 
+function reduceAllowance(address _who, uint _amount) internal {
+    allowance[_who] -= _amount;
+}
+
     function withdrawMoney(address payable _to, uint _amount) public ownerOrAllowed(_amount) {
+    // lowers allowance if the msg.sender is not the owner... why do this?
+    require(_amount <= address(this).balance, "There are not enough funds in the smart contract") // why use the (this) notation...?
+       if(msg.sender != owner){
+            reduceAllowance(msg.sender, _amount);
+       }
         _to.transfer(_amount);
     }
 
 
-// ************************************************************************ //
 // FALL BACK FUNCTION
     function () external payable {
     }
 
 }
+
+
+
+
+
+
+
+
+
 
 // Notes: sending to fallback function can be a bit funny. First deploy, then enter value of ether, then press the 'transact' 
 // button where under the 'Low level interactions' tab. 
